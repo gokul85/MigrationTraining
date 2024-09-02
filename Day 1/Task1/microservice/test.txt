@@ -1,0 +1,18 @@
+docker run -d -p 1434:1433 --name sqlserver-container -e ACCEPT_EULA=Y -e SA_PASSWORD=Passw0rd mcr.microsoft.com/mssql/server
+
+docker exec -it a9a964a707169de3534ec9ddfd2a5285135d3355fead58112a4e20f1784358eb mkdir -p /var/opt/mssql/backup/
+
+docker cp ReturnManagementSystem.bak a9a964a70716:/var/opt/mssql/backup/
+
+RESTORE DATABASE ReturnManagementSystem
+FROM DISK = '/var/opt/mssql/backup/ReturnManagementSystem.bak'
+WITH MOVE 'ReturnManagementSystem' TO '/var/opt/mssql/data/ReturnManagementSystem.mdf',
+     MOVE 'ReturnManagementSystem_Log' TO '/var/opt/mssql/data/ReturnManagementSystem_log.ldf';
+
+docker run -d -p 8080:80 --name frontend-container my-frontend
+
+
+docker run -d -p 5173:5173 --name api-container my-dotnet-api
+
+
+Server=localhost,1434;Database=ReturnManagementSystem;User Id=sa;Password=Passw0rd;
